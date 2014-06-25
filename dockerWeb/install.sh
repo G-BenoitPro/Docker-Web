@@ -7,7 +7,7 @@
 mkdir /var/www
 
 
-apt-get install -y wget curl git python-software-properties python-setuptools vim-tiny
+# apt-get install -y wget curl git python-software-properties python-setuptools vim-tiny
 
 
 # Varnish (Maybe for later)
@@ -21,7 +21,7 @@ apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
 echo 'deb http://ftp.igh.cnrs.fr/pub/mariadb/repo/10.0/debian wheezy main' >> /etc/apt/sources.list
 
 
-
+#
 # Ajout source pour NginX.
 add-apt-repository -y ppa:nginx/stable
 
@@ -79,11 +79,9 @@ do
 packetList+=" ${packetToInstall[$i]}"
 done
 
-apt-get -y install ${packetList}
+#apt-get -y install ${packetList}
 
-apt-get -f install 
-
-
+#apt-get -f install 
 
 
 
@@ -117,7 +115,6 @@ pecl install ${PECLModuleToInstall}
 
 
 
-
 # Install Webdis.
 git clone git://github.com/nicolasff/webdis.git 
 cd webdis
@@ -135,7 +132,6 @@ make
 #☻sed -i "s/^bind-address/#bind-address/" /etc/mysql/my.cnf
 
 
-
 # Composer
 curl -sS https://getcomposer.org/installer | php --install-dir=bin
 mv /usr/bin/composer.phar /usr/bin/composer
@@ -151,8 +147,6 @@ mv /usr/bin/composer.phar /usr/bin/composer
 #chmod a+w /var/www/drupal/sites/default;
 #mkdir /var/www/drupal/sites/default/files;
 #chown -R www-data:www-data /var/www/;
-
-
 
 
 

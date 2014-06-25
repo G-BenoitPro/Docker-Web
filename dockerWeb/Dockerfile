@@ -9,6 +9,8 @@
 FROM debian:wheezy
 
 
+RUN apt-get install -y wget curl git python-software-properties python-setuptools vim-tiny nginx drush phpmyadmin memcached php5 php-apc php-pear php5-cli php5-common php5-curl php5-dev php5-fpm php5-gd php5-imagick php5-imap php5-intl php5-json php5-mcrypt php5-memcache php5-ming php5-mysql php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl libssh2-php mariadb-server mariadb-client redis-server openjdk-7-jdk openjdk-7-jre
+
 
 ADD install.sh /user/bin/install.sh
 
@@ -16,7 +18,8 @@ RUN chmod +x /user/bin/install.sh
 RUN /user/bin/install.sh
 
 
-ADD drupalAdyax.make /var/www/drupal/
+# make file drush if needed
+#ADD drupalAdyax.make /var/www/drupal/
 
 
 RUN echo "cgi.fix_pathinfo = 0;" >> /etc/php5/fpm/php.ini

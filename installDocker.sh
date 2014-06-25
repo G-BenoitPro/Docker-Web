@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# have internet in contener https://github.com/dotcloud/docker/issues/4181
+
 
 # Check that HTTPS transport is available to APT
 if [ ! -e /usr/lib/apt/methods/https ]; then
