@@ -10,18 +10,17 @@ mkdir /var/www
 apt-get install -y wget curl git python-software-properties python-setuptools vim-tiny
 
 
-# Varnish
-curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
+# Varnish (Maybe for later)
+#curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
 #echo "deb http://repo.varnish-cache.org/debian/ wheezy varnish-3.0" >> /etc/apt/sources.list
-add-apt-repository 'deb http://repo.varnish-cache.org/debian/ wheezy varnish-3.0'
+#add-apt-repository 'deb http://repo.varnish-cache.org/debian/ wheezy varnish-3.0'
 
 
 # Ajout source pour MariaDB.
 apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
-add-apt-repository 'deb http://ftp.igh.cnrs.fr/pub/mariadb/repo/10.0/debian wheezy main'
-add-apt-repository 'deb http://mariadb.cu.be//repo/10.0/debian wheezy main'
-add-apt-repository 'deb http://ftp.hosteurope.de/mirror/mariadb.org/repo/10.0/debian wheezy main'
-add-apt-repository 'deb http://mirror.mephi.ru/mariadb/repo/10.0/debian wheezy main'
+echo 'deb http://ftp.igh.cnrs.fr/pub/mariadb/repo/10.0/debian wheezy main' >> /etc/apt/sources.list
+
+
 
 # Ajout source pour NginX.
 add-apt-repository -y ppa:nginx/stable
@@ -119,35 +118,8 @@ pecl install ${PECLModuleToInstall}
 
 
 
-
-
-
-
-
-
-
-
-
-
-# Install Redis.
-  #cd /tmp
-  #wget http://download.redis.io/redis-stable.tar.gz
-  #tar xvzf redis-stable.tar.gz
-  #cd redis-stable
-  #make
-  #make install
-  #cp -f src/redis-sentinel /usr/local/bin
-  #mkdir -p /etc/redis
-  #cp -f *.conf /etc/redis
-  #rm -rf /tmp/redis-stable*
-  #sed -i 's/^\(bind .*\)$/# \1/' /etc/redis/redis.conf
-  #sed -i 's/^\(daemonize .*\)$/# \1/' /etc/redis/redis.conf
-  #sed -i 's/^\(dir .*\)$/# \1\ndir \/data/' /etc/redis/redis.conf
-  #sed -i 's/^\(logfile .*\)$/# \1/' /etc/redis/redis.conf
-
-
 # Install Webdis.
-git clone git://github.com/nicolasff/webdis.git	
+git clone git://github.com/nicolasff/webdis.git 
 cd webdis
 make
 ./webdis & # this line to start webdis
@@ -158,14 +130,14 @@ make
 
 
 # Conf PHP-FPM
-default_charset = "utf-8" >> /etc/php5/fpm/php.ini
+# default_charset = "utf-8" >> /etc/php5/fpm/php.ini
 
 #☻sed -i "s/^bind-address/#bind-address/" /etc/mysql/my.cnf
 
 
 
 # Composer
-curl -sS https://getcomposer.org/installer | php -- --install-dir=bin
+curl -sS https://getcomposer.org/installer | php --install-dir=bin
 mv /usr/bin/composer.phar /usr/bin/composer
 
 

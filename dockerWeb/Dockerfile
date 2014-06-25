@@ -10,13 +10,14 @@ FROM debian:wheezy
 
 
 
-ADD install.sh /home/
+ADD install.sh /user/bin/install.sh
 
-RUN chmod +x /home/install.sh
-RUN /home/install.sh
+RUN chmod +x /user/bin/install.sh
+RUN /user/bin/install.sh
 
 
 ADD drupalAdyax.make /var/www/drupal/
+
 
 RUN echo "cgi.fix_pathinfo = 0;" >> /etc/php5/fpm/php.ini
 ADD nginx.conf /etc/nginx/nginx.conf
