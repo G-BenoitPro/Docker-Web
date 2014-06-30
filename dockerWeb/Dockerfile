@@ -37,6 +37,8 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update
 
+#RUN apt-get upgrade -y
+
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --fix-missing wget curl git python-software-properties python-setuptools vim-tiny nginx drush phpmyadmin memcached php5 php-apc php-pear php5-cli php5-common php5-curl php5-dev php5-fpm php5-gd php5-imagick php5-imap php5-intl php5-json php5-mcrypt php5-memcache php5-ming php5-mysql php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl libssh2-php libevent-dev redis-server openjdk-7-jdk openjdk-7-jre
 #mariadb-server mariadb-client
@@ -46,14 +48,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --fix-missing wget curl gi
 RUN pecl install apc bcompiler geoip gmagick imagick lzf mailparse memcache mongo pdflib rar uploadprogress Xdebug
 
 
-RUN curl -sS https://getcomposer.org/installer | php --install-dir=bin && mv /usr/bin/composer.phar /usr/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=bin
 
 
-
-#ADD install.sh /user/bin/install.sh
-
-#RUN chmod +x /user/bin/install.sh
-#RUN /user/bin/install.sh
 
 
 # make file drush if needed
@@ -89,7 +86,9 @@ RUN apt-get -y -q autoclean && apt-get -y -q autoremove
 ENTRYPOINT ["/bin/bash"]
 
 
+
 # Expose ports.
+
 # Nginx
 EXPOSE 80
 EXPOSE 443
