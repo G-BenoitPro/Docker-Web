@@ -5,12 +5,14 @@
 # DOCKER-VERSION        1
 
 # Pull base image.
-FROM ubuntu:12.04
+FROM ubuntu:13.10
 #FROM debian:wheezy
+#ENV DEBIAN_FRONTEND noninteractive
 
 
 RUN apt-get install -y --fix-missing wget curl git python-software-properties python-setuptools vim-tiny nginx drush phpmyadmin memcached php5 php-apc php-pear php5-cli php5-common php5-curl php5-dev php5-fpm php5-gd php5-imagick php5-imap php5-intl php5-json php5-mcrypt php5-memcache php5-ming php5-mysql php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl libssh2-php redis-server openjdk-7-jdk openjdk-7-jre
 # mariadb-server mariadb-client
+
 
 ADD install.sh /user/bin/install.sh
 
@@ -42,6 +44,10 @@ RUN sed -i -e 's/^listen =.*/listen = \/var\/run\/php5-fpm.sock/' /etc/php5/fpm/
 
 # Define working directory.
 #WORKDIR /data
+
+
+# on définit la commande par défaut
+ENTRYPOINT ["/bin/bash"]
 
 
 # Expose ports.
