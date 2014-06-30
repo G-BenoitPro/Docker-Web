@@ -17,13 +17,13 @@ mkdir /var/www
 
 
 # Ajout source pour MariaDB.
-apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
-echo 'deb http://ftp.igh.cnrs.fr/pub/mariadb/repo/10.0/debian wheezy main' >> /etc/apt/sources.list
+#apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+#echo 'deb http://ftp.igh.cnrs.fr/pub/mariadb/repo/10.0/debian wheezy main' >> /etc/apt/sources.list
 
 
 #
 # Ajout source pour NginX.
-add-apt-repository -y ppa:nginx/stable
+#add-apt-repository -y ppa:nginx/stable
 
 
 # source pour la dernière version de PHP5
@@ -79,7 +79,7 @@ do
 packetList+=" ${packetToInstall[$i]}"
 done
 
-#apt-get -y install ${packetList}
+#DEBIAN_FRONTEND=noninteractive apt-get -y --fix-missing install ${packetList}
 
 #apt-get -f install 
 
@@ -133,8 +133,8 @@ make
 
 
 # Composer
-curl -sS https://getcomposer.org/installer | php --install-dir=bin
-mv /usr/bin/composer.phar /usr/bin/composer
+curl -sS https://getcomposer.org/installer | php --install-dir=bin && mv /usr/bin/composer.phar /usr/bin/composer
+
 
 
 ## Retrieve drupal
