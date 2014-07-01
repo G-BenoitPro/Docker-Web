@@ -6,7 +6,7 @@
 
 # Pull base image.
 FROM ubuntu:14.04
-MAINTAINER Adyax version: 0.1
+MAINTAINER Adyax version: 0.2
 ENV DEBIAN_FRONTEND noninteractive
 
 
@@ -55,7 +55,7 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client
 
 
-RUN pecl install apc bcompiler geoip gmagick imagick lzf mailparse memcache mongo pdflib rar uploadprogress Xdebug
+RUN pecl install apc #bcompiler geoip gmagick imagick lzf mailparse memcache mongo pdflib rar uploadprogress Xdebug
 
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/
@@ -65,35 +65,27 @@ RUN mv /usr/bin/composer.phar /usr/bin/composer
 
 # Install Webdis.
 RUN git clone git://github.com/nicolasff/webdis.git && cd webdis && make
-#RUN cd webdis
-#RUN make
-RUN ./webdis & # this line to start webdis
+
+RUN ./webdis & #start webdis
 
 
 # phpinfo.php
 ADD phpinfo.php /var/www/phpinfo.php
 
 
-RUN mkdir /var/www
-
-
-# make file drush if needed
-#ADD drupalAdyax.make /var/www/drupal/
-
-
-RUN echo "cgi.fix_pathinfo = 0;" >> /etc/php5/fpm/php.ini
-ADD nginx.conf /etc/nginx/nginx.conf
-ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/expires.conf /etc/nginx/conf/expires.conf
-ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/directive-only/x-ua-compatible.conf /etc/nginx/conf/x-ua-compatible.conf
-ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/cross-domain-fonts.conf /etc/nginx/conf/cross-domain-fonts.conf
-ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/protect-system-files.conf /etc/nginx/conf/protect-system-files.conf
-ADD nginx-site.conf /etc/nginx/sites-available/default
-RUN sed -i -e '/access_log/d' /etc/nginx/conf/expires.conf
-RUN sed -i -e 's/^listen =.*/listen = \/var\/run\/php5-fpm.sock/' /etc/php5/fpm/pool.d/www.conf
+#RUN echo "cgi.fix_pathinfo = 0;" >> /etc/php5/fpm/php.ini
+#ADD nginx.conf /etc/nginx/nginx.conf
+#ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/expires.conf /etc/nginx/conf/expires.conf
+#ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/directive-only/x-ua-compatible.conf /etc/nginx/conf/x-ua-compatible.conf
+#ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/cross-domain-fonts.conf /etc/nginx/conf/cross-domain-fonts.conf
+#ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/protect-system-files.conf /etc/nginx/conf/protect-system-files.conf
+#ADD nginx-site.conf /etc/nginx/sites-available/default
+#RUN sed -i -e '/access_log/d' /etc/nginx/conf/expires.conf
+#RUN sed -i -e 's/^listen =.*/listen = \/var\/run\/php5-fpm.sock/' /etc/php5/fpm/pool.d/www.conf
 
 RUN mkdir -p /var/www && chown -R www-data:www-data /var/www
 
-echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+RUN echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
 
 
 # Tomcat
@@ -109,13 +101,15 @@ ENV SOLR_VERSION 4.9.0
 ENV SOLR solr-$SOLR_VERSION
 RUN mkdir -p /opt
 ADD http://www.mirrorservice.org/sites/ftp.apache.org/lucene/solr/$SOLR_VERSION/$SOLR.tgz /opt/$SOLR.tgz
+#ADD $SOLR.tgz /opt/$SOLR.tgz # marche pas, je ne sais pas pk ?
 RUN tar -C /opt --extract --file /opt/$SOLR.tgz
 RUN ln -s /opt/$SOLR /opt/solr
 
 CMD ["/bin/bash", "-c", "cd /opt/solr/example; java -jar start.jar"]
 
 
-RUN service php5-fpm reload && service nginx reload
+RUN service php5-fpm reload
+RUN service nginx reload
 
 RUN apt-get -y -q autoclean && apt-get -y -q autoremove
 
@@ -128,7 +122,7 @@ RUN apt-get -y -q autoclean && apt-get -y -q autoremove
 
 
 # on définit la commande par défaut
-ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["/bin/bash"]
 
 
 

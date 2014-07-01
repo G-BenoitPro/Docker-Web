@@ -115,11 +115,7 @@ pecl install ${PECLModuleToInstall}
 
 
 
-# Install Webdis.
-git clone git://github.com/nicolasff/webdis.git 
-cd webdis
-make
-./webdis & # this line to start webdis
+
 
 
 # Apache Solr
@@ -133,7 +129,7 @@ make
 
 
 # Composer
-curl -sS https://getcomposer.org/installer | php --install-dir=bin && mv /usr/bin/composer.phar /usr/bin/composer
+#curl -sS https://getcomposer.org/installer | php --install-dir=bin && mv /usr/bin/composer.phar /usr/bin/composer
 
 
 
@@ -150,12 +146,6 @@ curl -sS https://getcomposer.org/installer | php --install-dir=bin && mv /usr/bi
 
 
 
-# phpinfo.php
-cat > /var/www/phpinfo.php <<EOF
-<?
-php phpinfo();
-?>
-EOF
 
 
 #echo "SSL Key"
