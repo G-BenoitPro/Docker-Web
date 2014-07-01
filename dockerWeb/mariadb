@@ -1,0 +1,3 @@
+Package: *
+Pin: origin ftp.igh.cnrs.fr
+Pin-Priority: 1000
