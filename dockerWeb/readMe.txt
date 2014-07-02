@@ -24,6 +24,10 @@ cat exampleimage.tgz | sudo docker import - exampleimagelocal:new
 
 
 Launch container
-docker run -p 127.0.0.1:80:80 -p 443:443 -p 3306:3306 -p 6379:6379 -p 7379:7379 -p 8983:8983 --name WebEnvironment -i -t someimage -m /data:/data
+docker run -p 127.0.0.1:80:80 -p 443:443 -p 3306:3306 -p 6379:6379 -p 7379:7379 -p 8983:8983 --name WebEnvironment -i -t someimage -v /home:/var/www --dns=8.8.8.8 --dns=8.8.4.4
 
+i interactif
+t image
+d daemon
 
+3df101609cd6
