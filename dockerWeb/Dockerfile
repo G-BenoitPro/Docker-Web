@@ -46,14 +46,10 @@ RUN apt-get update
 #RUN apt-get upgrade -y
 
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --fix-missing wget curl git python-software-properties python-setuptools vim-tiny nginx drush phpmyadmin memcached php5 php-apc php-pear php5-cli php5-common php5-curl php5-dev php5-fpm php5-gd php5-imagick php5-imap php5-intl php5-json php5-mcrypt php5-memcache php5-ming php5-mysql php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl libssh2-php libevent-dev mysql-common libmysqlclient18 redis-server openjdk-7-jdk openjdk-7-jre mariadb-server mariadb-client
-
-#RUN apt-get update
-
-#RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --fix-missing wget curl git python-software-properties python-setuptools vim-tiny nginx drush memcached php5 php-apc php-pear php5-cli php5-common php5-curl php5-dev php5-fpm php5-gd php5-imagick php5-imap php5-intl php5-json php5-mcrypt php5-memcache php5-ming php5-mysql php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl libssh2-php libevent-dev mysql-common libmysqlclient18 redis-server openjdk-7-jdk openjdk-7-jre mariadb-server mariadb-client vim htop #phpmyadmin
 
 
-RUN pecl install apc bcompiler geoip gmagick imagick lzf mailparse memcache mongo pdflib rar uploadprogress Xdebug
+RUN pecl install apc bcompiler geoip gmagick lzf mailparse mongo pdflib rar uploadprogress Xdebug #memcache imagick
 
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/
@@ -67,9 +63,12 @@ RUN git clone git://github.com/nicolasff/webdis.git && cd webdis && make
 # phpinfo.php
 ADD phpinfo.php /var/www/phpinfo.php
 
+# index.html
+ADD index.html /var/www/index.html
+
 
 #RUN echo "cgi.fix_pathinfo = 0;" >> /etc/php5/fpm/php.ini
-#ADD nginx.conf /etc/nginx/nginx.conf
+ADD nginx.conf /etc/nginx/nginx.conf
 #ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/expires.conf /etc/nginx/conf/expires.conf
 #ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/directive-only/x-ua-compatible.conf /etc/nginx/conf/x-ua-compatible.conf
 #ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/cross-domain-fonts.conf /etc/nginx/conf/cross-domain-fonts.conf
@@ -80,6 +79,11 @@ ADD nginx-site.conf /etc/nginx/sites-available/default
 
 RUN mkdir -p /var/www && chown -R www-data:www-data /var/www
 
+
+#phpmyadmin
+ADD http://softlayer-ams.dl.sourceforge.net/project/phpmyadmin/phpMyAdmin/4.2.5/phpMyAdmin-4.2.5-all-languages.tar.gz /var/www/phpmyadmin.tar.gz
+#RUN tar xzf /var/www/phpmyadmin.tar.gz -C /var/www
+RUN tar -C /var/www --extract --file /var/www/phpmyadmin.tar.gz
 
 
 # Tomcat
@@ -93,18 +97,23 @@ RUN mkdir -p /var/www && chown -R www-data:www-data /var/www
 # Solr
 ENV SOLR_VERSION 4.9.0
 ENV SOLR solr-$SOLR_VERSION
-RUN mkdir -p /opt
-#ADD http://www.mirrorservice.org/sites/ftp.apache.org/lucene/solr/$SOLR_VERSION/$SOLR.tgz /opt/$SOLR.tgz
-ADD solr-4.9.0.tgz /opt/solr-4.9.0.tgz # marche pas, je ne sais pas pk ?
-RUN tar -C /opt --extract --file /opt/$SOLR.tgz
-RUN ln -s /opt/$SOLR /opt/solr
+#RUN mkdir -p /opt
+ADD http://www.mirrorservice.org/sites/ftp.apache.org/lucene/solr/$SOLR_VERSION/$SOLR.tgz /var/opt/$SOLR.tgz
+#ADD solr-4.9.0.tgz /var/opt/solr-4.9.0.tgz
+RUN tar -C /var/opt --extract --file /var/opt/solr-4.9.0.tgz
+#RUN tar xzf /var/opt/solr-4.9.0.tgz -C /var/opt
+RUN ln -s /var/opt/solr-4.9.0.tgz /var/opt/solr
 
 #CMD ["/bin/bash", "-c", "cd /opt/solr/example; java -jar start.jar"]
 
-
+RUN service php5-fpm start
 RUN service php5-fpm reload
+
+RUN service nginx start
 RUN service nginx reload
+
 RUN service redis-server start
+RUN service redis-server reload
 
 RUN apt-get -y -q autoclean && apt-get -y -q autoremove
 
@@ -140,6 +149,6 @@ EXPOSE 7379
 EXPOSE 8983
 
 
-ADD start.sh /start.sh
-RUN chmod +x /start.sh
-CMD ./start.sh
+ADD start.sh /var/opt/start.sh
+RUN chmod +x /var/opt/start.sh
+CMD /var/opt/start.sh;
