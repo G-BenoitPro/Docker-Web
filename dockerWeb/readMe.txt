@@ -30,4 +30,31 @@ i interactif
 t image
 d daemon
 
-3df101609cd6
+
+
+Supprimer tous les conteneurs:
+docker ps -a|sed "1 d"|awk '{print $1}'|xargs docker rm
+
+
+Supprimer toutes les images:
+docker images|sed "1 d"|awk '{print $3}'|sort|uniq|xargs docker rmi
+
+
+docker attach —sig-proxy=false IDconainer
+
+
+GUI to manage your Docker container
+
+- DockerUI
+docker run --name DockerUI -d -p 9000:9000 -v /var/run/docker.sock:/docker.sock crosbymichael/dockerui -e /docker.sock
+then http://127.0.0.1:9000
+
+- Shipyard
+docker run --name Shipyard -i -t -v /var/run/docker.sock:/docker.sock shipyard/deploy setup
+then http://127.0.0.1:8000
+
+docker run --name ShipyardAgent -i -d -t -v /var/run/docker.sock:/docker.sock \
+  -e IP=`ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{print $1;}'` \
+  -e URL=http://<YourIP>:8000 -p 4500:4500 shipyard/agent
+
+!!! YourIP != 127.0.0.1 OR localhost

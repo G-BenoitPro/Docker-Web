@@ -1,4 +1,4 @@
-# docker Drupal-Adyax
+# Docker Drupal-Adyax
 #
 #
 # VERSION       1
@@ -6,7 +6,7 @@
 
 # Pull base image.
 FROM ubuntu:14.04
-MAINTAINER Adyax version: 0.2
+MAINTAINER Adyax version: 0.4
 ENV DEBIAN_FRONTEND noninteractive
 
 
@@ -32,10 +32,15 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
 
+
+# Varnish
+curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+echo "deb https://repo.varnish-cache.org/ubuntu/ precise varnish-4.0" >> /etc/apt/sources.list.d/varnish-cache.list
+
+
 # MariaDB
 RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
 RUN echo "deb http://ftp.igh.cnrs.fr/pub/mariadb/repo/10.0/ubuntu trusty main" >> /etc/apt/sources.list
-#RUN echo "deb http://ftp.igh.cnrs.fr/pub/mariadb/repo/5.5/ubuntu trusty main" >> /etc/apt/sources.list
 
 
 ADD mariadb /etc/apt/preferences.d/mariadb
@@ -46,7 +51,7 @@ RUN apt-get update
 #RUN apt-get upgrade -y
 
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --fix-missing wget curl git python-software-properties python-setuptools vim-tiny nginx drush memcached php5 php-apc php-pear php5-cli php5-common php5-curl php5-dev php5-fpm php5-gd php5-imagick php5-imap php5-intl php5-json php5-mcrypt php5-memcache php5-ming php5-mysql php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl libssh2-php libevent-dev mysql-common libmysqlclient18 redis-server openjdk-7-jdk openjdk-7-jre mariadb-server mariadb-client vim htop #phpmyadmin
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --fix-missing wget curl git python-software-properties python-setuptools vim-tiny nginx drush memcached php5 php-apc php-pear php5-cli php5-common php5-curl php5-dev php5-fpm php5-gd php5-imagick php5-imap php5-intl php5-json php5-mcrypt php5-memcache php5-ming php5-mysql php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl libssh2-php libevent-dev mysql-common libmysqlclient18 redis-server openjdk-7-jdk openjdk-7-jre mariadb-server mariadb-client varnish vim htop slurm
 
 
 RUN pecl install apc bcompiler geoip gmagick lzf mailparse mongo pdflib rar uploadprogress Xdebug #memcache imagick
@@ -57,63 +62,60 @@ RUN mv /usr/bin/composer.phar /usr/bin/composer
 
 
 # Install Webdis.
-RUN git clone git://github.com/nicolasff/webdis.git && cd webdis && make
+#RUN git clone git://github.com/nicolasff/webdis.git && cd webdis && make
+ADD webdis/ /var/opt/webdis
+RUN cd /var/opt/webdis/ && make
+#WORKDIR /var/opt/webdis/
+#RUN make
+#WORKDIR /
 
+RUN mkdir -p /var/www
 
-# phpinfo.php
-ADD phpinfo.php /var/www/phpinfo.php
 
 # index.html
-ADD index.html /var/www/index.html
+ADD index.html /var/www/home.html
+
+# memcache.php
+ADD memcache.php /var/www/memcache.php
 
 
+# APC script
+ADD apc.php /var/www/apc.php
+#RUN cp /usr/share/doc/php-apc/apc.php.gz /var/www/
+#RUN gunzip /var/www/apc.php.gz
+#RUN rm /var/www/apc.php.gz
+
+
+# Nginx
 #RUN echo "cgi.fix_pathinfo = 0;" >> /etc/php5/fpm/php.ini
 ADD nginx.conf /etc/nginx/nginx.conf
-#ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/expires.conf /etc/nginx/conf/expires.conf
-#ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/directive-only/x-ua-compatible.conf /etc/nginx/conf/x-ua-compatible.conf
-#ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/cross-domain-fonts.conf /etc/nginx/conf/cross-domain-fonts.conf
-#ADD https://raw.github.com/h5bp/server-configs-nginx/master/h5bp/location/protect-system-files.conf /etc/nginx/conf/protect-system-files.conf
 ADD nginx-site.conf /etc/nginx/sites-available/default
-#RUN sed -i -e '/access_log/d' /etc/nginx/conf/expires.conf
-#RUN sed -i -e 's/^listen =.*/listen = \/var\/run\/php5-fpm.sock/' /etc/php5/fpm/pool.d/www.conf
 
-RUN mkdir -p /var/www && chown -R www-data:www-data /var/www
+#RUN openssl genrsa -out /etc/nginx/localhost.key 2048
+#RUN openssl req -new -key /etc/nginx/localhost.key > /etc/nginx/localhost.csr
+#RUN openssl genrsa 1024 > /etc/nginx/ca.key
+#RUN openssl req -new -x509 -days 365 -key /etc/nginx/ca.key > /etc/nginx/ca.crt
+#RUN openssl x509 -req -in localhost.csr -out localhost.crt -CA ca.crt -CAkey ca.key -CAcreateserial -CAserial ca.srl
+
+ADD localhost.crt /etc/nginx/localhost.crt
+ADD localhost.key /etc/nginx/localhost.key
+
+# Varnish
+ADD default.vcl /etc/varnish/default.vcl
 
 
 #phpmyadmin
-ADD http://softlayer-ams.dl.sourceforge.net/project/phpmyadmin/phpMyAdmin/4.2.5/phpMyAdmin-4.2.5-all-languages.tar.gz /var/www/phpmyadmin.tar.gz
-#RUN tar xzf /var/www/phpmyadmin.tar.gz -C /var/www
-RUN tar -C /var/www --extract --file /var/www/phpmyadmin.tar.gz
-
-
-# Tomcat
-#RUN useradd -Mb /usr/local tomcat
-#RUN tar -C /usr/local -zxf /usr/local/src/apache-tomcat-7.*.tar.gz
-#RUN mv /usr/local/apache-tomcat-7.* /usr/local/tomcat
-#RUN chown -R tomcat:tomcat /usr/local/tomcat
-#RUN sudo -u tomcat /usr/local/tomcat/bin/startup.sh
+ADD phpMyAdmin/ /var/www/phpMyAdmin
+ADD phpmyadmin.config.inc.php /var/www/phpMyAdmin/config.inc.php
 
 
 # Solr
 ENV SOLR_VERSION 4.9.0
 ENV SOLR solr-$SOLR_VERSION
-#RUN mkdir -p /opt
-ADD http://www.mirrorservice.org/sites/ftp.apache.org/lucene/solr/$SOLR_VERSION/$SOLR.tgz /var/opt/$SOLR.tgz
-#ADD solr-4.9.0.tgz /var/opt/solr-4.9.0.tgz
-RUN tar -C /var/opt --extract --file /var/opt/solr-4.9.0.tgz
-#RUN tar xzf /var/opt/solr-4.9.0.tgz -C /var/opt
-RUN ln -s /var/opt/solr-4.9.0.tgz /var/opt/solr
+ADD solr-4.9.0/ /var/opt/solr
 
-#CMD ["/bin/bash", "-c", "cd /opt/solr/example; java -jar start.jar"]
 
-RUN service php5-fpm start
-RUN service php5-fpm reload
-
-RUN service nginx start
-RUN service nginx reload
-
-RUN service redis-server start
-RUN service redis-server reload
+RUN chown -R www-data:www-data /var/www
 
 RUN apt-get -y -q autoclean && apt-get -y -q autoremove
 
@@ -121,13 +123,9 @@ RUN apt-get -y -q autoclean && apt-get -y -q autoremove
 # Define mountable directories.
 #VOLUME ["/data"]
 
-# Define working directory.
-#WORKDIR /data
-
 
 # on définit la commande par défaut
 #ENTRYPOINT ["/bin/bash"]
-
 
 
 # Expose ports.
@@ -135,6 +133,10 @@ RUN apt-get -y -q autoclean && apt-get -y -q autoremove
 # Nginx
 EXPOSE 80
 EXPOSE 443
+
+# Varnish
+EXPOSE 6081
+EXPOSE 6082
 
 # MariaDB
 EXPOSE 3306
@@ -145,10 +147,12 @@ EXPOSE 6379
 # Webdis
 EXPOSE 7379
 
-# http://localhost:8983/solr/
+# Solr
 EXPOSE 8983
 
 
 ADD start.sh /var/opt/start.sh
 RUN chmod +x /var/opt/start.sh
-CMD /var/opt/start.sh;
+CMD /var/opt/start.sh
+#ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["sh", "/var/opt/start.sh"]
