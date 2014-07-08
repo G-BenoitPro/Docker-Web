@@ -6,32 +6,14 @@
 
 # Pull base image.
 FROM ubuntu:14.04
-MAINTAINER Adyax version: 0.4
+#FROM debian:stable
+MAINTAINER Adyax version: 0.5
 ENV DEBIAN_FRONTEND noninteractive
-
-
-
-#RUN echo "deb ftp://ubuntu.mirrors.ovh.net/ftp.ubuntu.com/ubuntu/ trusty main" >> /etc/apt/sources.list
-#RUN echo "deb-src ftp://ubuntu.mirrors.ovh.net/ftp.ubuntu.com/ubuntu/ trusty main" >> /etc/apt/sources.list
-#RUN echo "deb http://ubuntu-archive.mirrors.free.org/ubuntu/ trusty main" >> /etc/apt/sources.list
-#RUN echo "deb-src http://ubuntu-archive.mirrors.free.org/ubuntu/ trusty main" >> /etc/apt/sources.list
-
-#deb http://ubuntu.mirrors.ovh.net/ftp.ubuntu.com/ubuntu/ trusty main
-#deb-src http://ubuntu.mirrors.ovh.net/ftp.ubuntu.com/ubuntu/ trusty main
-#deb http://ubuntu-archive.mirrors.free.org/ubuntu/ trusty main
-#deb-src http://ubuntu-archive.mirrors.free.org/ubuntu/ trusty main
-
-#deb http://fr.archive.ubuntu.com/ubuntu/ trusty main restricted universe multiverse
-#deb http://fr.archive.ubuntu.com/ubuntu/ trusty-updates main restricted universe multiverse
-#deb http://fr.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse
-#deb http://fr.archive.ubuntu.com/ubuntu/ trusty-proposed main restricted universe multiverse
-#deb http://security.ubuntu.com/ubuntu/ trusty-security main restricted universe multiverse
-#deb http://archive.canonical.com/ubuntu/ trusty partner
-#deb http://extras.ubuntu.com/ubuntu/ trusty main
 
 
 RUN echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
 
+RUN apt-get install -y curl
 
 # Varnish
 curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
@@ -62,12 +44,8 @@ RUN mv /usr/bin/composer.phar /usr/bin/composer
 
 
 # Install Webdis.
-#RUN git clone git://github.com/nicolasff/webdis.git && cd webdis && make
 ADD webdis/ /var/opt/webdis
 RUN cd /var/opt/webdis/ && make
-#WORKDIR /var/opt/webdis/
-#RUN make
-#WORKDIR /
 
 RUN mkdir -p /var/www
 
@@ -81,9 +59,6 @@ ADD memcache.php /var/www/memcache.php
 
 # APC script
 ADD apc.php /var/www/apc.php
-#RUN cp /usr/share/doc/php-apc/apc.php.gz /var/www/
-#RUN gunzip /var/www/apc.php.gz
-#RUN rm /var/www/apc.php.gz
 
 
 # Nginx
@@ -91,14 +66,9 @@ ADD apc.php /var/www/apc.php
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD nginx-site.conf /etc/nginx/sites-available/default
 
-#RUN openssl genrsa -out /etc/nginx/localhost.key 2048
-#RUN openssl req -new -key /etc/nginx/localhost.key > /etc/nginx/localhost.csr
-#RUN openssl genrsa 1024 > /etc/nginx/ca.key
-#RUN openssl req -new -x509 -days 365 -key /etc/nginx/ca.key > /etc/nginx/ca.crt
-#RUN openssl x509 -req -in localhost.csr -out localhost.crt -CA ca.crt -CAkey ca.key -CAcreateserial -CAserial ca.srl
 
-ADD localhost.crt /etc/nginx/localhost.crt
-ADD localhost.key /etc/nginx/localhost.key
+ADD ssl/server.crt /etc/nginx/server.crt
+ADD ssl/server.key /etc/nginx/server.key
 
 # Varnish
 ADD default.vcl /etc/varnish/default.vcl
@@ -118,14 +88,6 @@ ADD solr-4.9.0/ /var/opt/solr
 RUN chown -R www-data:www-data /var/www
 
 RUN apt-get -y -q autoclean && apt-get -y -q autoremove
-
-
-# Define mountable directories.
-#VOLUME ["/data"]
-
-
-# on définit la commande par défaut
-#ENTRYPOINT ["/bin/bash"]
 
 
 # Expose ports.
@@ -154,5 +116,3 @@ EXPOSE 8983
 ADD start.sh /var/opt/start.sh
 RUN chmod +x /var/opt/start.sh
 CMD /var/opt/start.sh
-#ENTRYPOINT ["/bin/bash"]
-#ENTRYPOINT ["sh", "/var/opt/start.sh"]

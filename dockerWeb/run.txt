@@ -1,2 +1,2 @@
 
-docker run -p 80:80 -p 443:443 -p 3306:3306 -p 6379:6379 -p 7379:7379 -p 8983:8983 --dns=8.8.8.8 --dns=8.8.4.4 -m 1024mb -v /home:/var/www/myHost -i -d --name webenv -t IDimage
+docker run -p 80:80 -p 443:443 -p 3306:3306 -p 6379:6379 -p 7379:7379 -p 8983:8983 -p 6081:6081 -p 6082:6082 --dns=8.8.8.8 --dns=8.8.4.4 -m 512m -v /home:/var/www/myHost -i -d --name webenv -t IDimage
