@@ -8,4 +8,5 @@ cd /var/opt/solr/example/ && java -jar start.jar &
 service mysql start &
 service varnish start &
 service memcached start &
+service elasticsearch start &
 /bin/bash
